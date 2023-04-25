@@ -10,11 +10,13 @@
       <div class="collapse navbar-collapse navbar-right" id="navbarSupportedContent">
         
         <router-link v-if="!authenticated" class="btn btn-color my-2 my-sm-0 mr-2" to="/login">Login</router-link>
-        <span v-if="authenticated">
+        <span class="user-border" v-if="authenticated">
           {{ userName }}
+        </span>
+        <span v-if="authenticated">
           <a @click="logout" class="btn btn-info my-2 my-sm-0 mr-2" href="#">Logout</a>
         </span>
-        <router-link class="btn btn-outline my-2 my-sm-0 mr-2" to="/signup">Signup</router-link>
+        <router-link v-if="!authenticated" class="btn btn-outline my-2 my-sm-0 mr-2" to="/signup">Signup</router-link>
       </div>
     </nav>
 
@@ -24,6 +26,8 @@
 
 <script>
 import store from '@/store.js'
+import { firebase, db } from '@/firebase.js'
+import router from '@/router';
 
 export default {
   data () {
@@ -34,7 +38,41 @@ export default {
     logout() {
       store.authenticated = false
     }
+  },
+  mounted() {
+    
+    firebase.auth().onAuthStateChanged((user) => {
+      const currentRoute = router.currentRoute;
+      if (user) {
+        console.log("Hello user", user.email)
+        db.collection("user")
+          .doc(user.email)
+          .get()
+          .then(function(doc) {
+              if (doc.exists) {
+                  const data = doc.data();
+                  console.log(data)
+                  store.userName = data.username
+                  store.userEmail = data.email
+              } 
+              else {
+                  console.log("Document does not exist!");
+              }
+              })
+              .catch(function(error) {
+                  console.log("Error getting document:", error);
+              });
+              store.userEmail = user.email;
+      } 
+      else {
+          console.log("No user");
+          store.userEmail = null;
+      /*if(currentRoute.meta.needsUser){
+          router.push({name:'login'});
+      }*/
+    }
   }
+    )}
 }
 </script>
 
@@ -68,5 +106,18 @@ export default {
 }
 .navbar-right{
   margin-left:900px;
+}
+.btn-info{
+  background-color: #1d8e1d;
+}
+.btn-info:hover{
+  background-color: rgb(13, 87, 13);
+}
+.user-border{
+  background-color:#1d8e1d;
+  margin: 8px;
+  padding: 7px 4px;
+  border-radius:5px;
+  color:white;
 }
 </style>
