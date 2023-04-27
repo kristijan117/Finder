@@ -11,54 +11,35 @@
         <h5 class="section-title h1">FIND YOUR MATCH</h5>
         <div class="row">
             <!-- Team member -->
-            <div class="col-xs-12 col-sm-6 col-md-4">
-                <div class="image-flip" >
+            <div v-for="user in users" :key="user.id" :info="user" class="col-xs-12 col-sm-6 col-md-4">
+                <div class="image-flip">
                     <div class="mainflip flip-0">
                         <div class="frontside">
                             <div class="card">
                                 <div class="card-body text-center">
-                                    <p><img class=" img-fluid" src="../assets/girl1.jpeg" alt="card image"></p>
-                                    <h4 class="card-title">Mohamed 
-</h4>
-                                    <p class="card-text">This is basic card with image on top, title, description and button.</p>
+                                    <p><img :src="user.image_url" class=" img-fluid" alt="card image"></p>
+                                    <h4 class="card-title"> {{user.username}} </h4>
+                                    <p class="card-text">{{user.about_you}}</p>
                                 </div>
                             </div>
                         </div>
                         <div class="backside">
                             <div class="card">
-                                <div class="card-body text-center mt-4">
-                                    <h4 class="card-title">Yousef</h4>
-                                    <p class="card-text">This is basic card with image on top, title, description and button.This is </p>
-                                    <!--
-                                    <ul class="list-inline">
-                                        <li class="list-inline-item">
-                                            <a class="social-icon text-xs-center" target="_blank" href="#">
-                                                <i class="fa fa-facebook"></i>
-                                            </a>
-                                        </li>
-                                        <li class="list-inline-item">
-                                            <a class="social-icon text-xs-center" target="_blank" href="#">
-                                                <i class="fa fa-twitter"></i>
-                                            </a>
-                                        </li>
-                                        <li class="list-inline-item">
-                                            <a class="social-icon text-xs-center" target="_blank" href="#">
-                                                <i class="fa fa-skype"></i>
-                                            </a>
-                                        </li>
-                                        <li class="list-inline-item">
-                                            <a class="social-icon text-xs-center" target="_blank" href="#">
-                                                <i class="fa fa-google"></i>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                    -->
+                                <h4 class="card-title">{{user.username}}</h4>
+                                <div class="card-body text-left mt-4">
+                                    <p class="card-text">I like:</p>
+                                    <p>{{user.nature}}</p>
+                                    <p>{{user.animals}}</p>
+                                    <p>{{user.reading_books}}</p>
+                                    <p>{{user.watching_movies}}</p>
+                                    <p>Searching for {{user.interests}}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            
             <!-- ./Team member -->
 
         </div>
@@ -72,12 +53,61 @@
 
 <script>
 import HelloWorld from '@/components/HelloWorld.vue'
-
+import { firebase, db } from '@/firebase'
 export default {
   name: 'home',
   components: {
     HelloWorld
-  }
+  },
+  data: function(){
+    return{
+        users:[],
+        username:'',
+        image_url:'',
+        gender:'',        
+        interests:'', 
+        nature:'', 
+        animals:'', 
+        reading_books:'',
+        watching_movies:'',
+        about_you:''
+    }
+  },
+  methods:{
+    fetchUser() {
+            db.collection("user")
+            .get()
+            .then((query) => {
+                query.forEach((doc) => {
+                    const data = doc.data();
+                    console.log(data);
+                    this.docs=data;
+                   
+                    this.users.push({
+                        id: doc.id,
+                        username: data.username,
+                        image_url: data.image_url,
+                        gender: data.gender,
+                        interests: data.interests,
+                        nature: data.nature,
+                        animals: data.animals,
+                        reading_books: data.reading_books,
+                        watching_movies: data.watching_movies,
+                        about_you: data.about_you
+      
+                    })
+                    
+                    console.log(this.users)
+                });
+            });
+    },
+
+  },
+  mounted(){
+        console.log("random message")
+        this.fetchUser();
+        console.log("Users: ",this.users)
+    }
 }
 
 </script>
@@ -203,6 +233,7 @@ section .section-title {
 .frontside .card,
 .backside .card {
     min-height: 312px;
+    min-width: 300px;
 }
 
 .backside .card a {
@@ -219,5 +250,9 @@ section .section-title {
     width: 200px;
     height: 200px;
     border-radius: 50%;
+}
+
+.card {
+    margin-left:20px;
 }
 </style>
