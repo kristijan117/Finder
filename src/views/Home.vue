@@ -33,7 +33,10 @@
                                     <p>{{user.reading_books}}</p>
                                     <p>{{user.watching_movies}}</p>
                                     <p>Searching for {{user.interests}}</p>
+                                    <p style="font-size:20px;color:#1d8e1d">Do you like <span v-if="user.gender=='male'">him?</span><span v-else>her?</span></p>
+                                    <button @click="match_person(user.username,user.about_you,user.nature,user.animals,user.reading_books,user.watching_movies,user.interests)" style="border:none"><img style="height:50px;width:50px" src="../assets/heart-icon.png"></button>
                                 </div>
+                                    
                             </div>
                         </div>
                     </div>
@@ -54,6 +57,7 @@
 <script>
 import HelloWorld from '@/components/HelloWorld.vue'
 import { firebase, db } from '@/firebase'
+import store from '@/store.js'
 export default {
   name: 'home',
   components: {
@@ -97,16 +101,47 @@ export default {
       
                     })
                     
-                    console.log(this.users)
+                    
                 });
             });
     },
+    match_person(crush_username,crush_description,crush_nature,crush_animals,crush_reading_books,crush_watching_movies,crush_interests){
+      try {
+      db.collection("like_person")
+        .doc()
+        .set({
+          username: store.userName,
+          email: store.userEmail,
+          /*image_url: this.image_url,
+          gender: this.gender,
+          interests: this.interests,
+          nature: this.nature,
+          animals: this.animals,
+          reading_books: this.reading_books,
+          watching_movies: this.watching_movies,
+          about_you: this.about_you,*/
 
+          crush_username: crush_username,
+          crush_description: crush_description,
+          crush_nature: crush_nature,
+          crush_animals: crush_animals,
+          crush_reading_books: crush_reading_books,
+          crush_watching_movies: crush_watching_movies,
+          crush_interests: crush_interests
+        });
+      
+      //this.$router.replace({ name: 'home'});
+    } 
+    catch(error) {
+      
+    }
+  }
+    
   },
   mounted(){
         console.log("random message")
         this.fetchUser();
-        console.log("Users: ",this.users)
+        console.log(this.users)
     }
 }
 
@@ -255,4 +290,7 @@ section .section-title {
 .card {
     margin-left:20px;
 }
+
+/*like button*/
+
 </style>
