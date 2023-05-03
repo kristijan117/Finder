@@ -17,6 +17,7 @@
           <a @click="logout" class="btn btn-info my-2 my-sm-0 mr-2" href="#">Logout</a>
         </span>
         <router-link v-if="!authenticated" class="btn btn-outline my-2 my-sm-0 mr-2" to="/signup">Signup</router-link>
+        <router-link class="btn btn-outline my-2 my-sm-0 mr-2" to="/crushes">Mutual sympathies</router-link>
       </div>
     </nav>
 
@@ -54,6 +55,7 @@ export default {
                   console.log(data)
                   store.userName = data.username
                   store.userEmail = data.email
+                  store.userImg = data.image_url
               } 
               else {
                   console.log("Document does not exist!");

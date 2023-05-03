@@ -8,11 +8,12 @@
     <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a>-->
     <section id="team" class="pb-5">
     <div class="container">
+        <h1>{{ store.userName }}</h1>
         <h5 class="section-title h1">FIND YOUR MATCH</h5>
         <div class="row">
             <!-- Team member -->
             <div v-for="user in users" :key="user.id" :info="user" class="col-xs-12 col-sm-6 col-md-4">
-                <div class="image-flip">
+                <div v-if="user.username!==store.userName" class="image-flip">
                     <div class="mainflip flip-0">
                         <div class="frontside">
                             <div class="card">
@@ -27,14 +28,15 @@
                             <div class="card">
                                 <h4 class="card-title">{{user.username}}</h4>
                                 <div class="card-body text-left mt-4">
+                                    <p style="font-size:16px;"><span v-if="user.gender=='male'">He is </span><span v-else>She is </span>searching for {{user.interests}}</p>
+                                    <br>
                                     <p class="card-text">I like:</p>
                                     <p>{{user.nature}}</p>
                                     <p>{{user.animals}}</p>
                                     <p>{{user.reading_books}}</p>
                                     <p>{{user.watching_movies}}</p>
-                                    <p>Searching for {{user.interests}}</p>
                                     <p style="font-size:20px;color:#1d8e1d">Do you like <span v-if="user.gender=='male'">him?</span><span v-else>her?</span></p>
-                                    <button @click="match_person(user.username,user.about_you,user.nature,user.animals,user.reading_books,user.watching_movies,user.interests)" style="border:none"><img style="height:50px;width:50px" src="../assets/heart-icon.png"></button>
+                                    <button @click="match_person(user.username,user.about_you,user.nature,user.animals,user.reading_books,user.watching_movies,user.interests,user.image_url)" style="border:none"><img style="height:50px;width:50px" src="../assets/heart-icon.png"></button>
                                 </div>
                                     
                             </div>
@@ -64,7 +66,7 @@ export default {
     HelloWorld
   },
   data: function(){
-    return{
+    return {
         users:[],
         username:'',
         image_url:'',
@@ -74,7 +76,8 @@ export default {
         animals:'', 
         reading_books:'',
         watching_movies:'',
-        about_you:''
+        about_you:'',
+        store
     }
   },
   methods:{
@@ -105,22 +108,14 @@ export default {
                 });
             });
     },
-    match_person(crush_username,crush_description,crush_nature,crush_animals,crush_reading_books,crush_watching_movies,crush_interests){
+    match_person(crush_username,crush_description,crush_nature,crush_animals,crush_reading_books,crush_watching_movies,crush_interests,crush_image){
       try {
       db.collection("like_person")
         .doc()
         .set({
           username: store.userName,
           email: store.userEmail,
-          /*image_url: this.image_url,
-          gender: this.gender,
-          interests: this.interests,
-          nature: this.nature,
-          animals: this.animals,
-          reading_books: this.reading_books,
-          watching_movies: this.watching_movies,
-          about_you: this.about_you,*/
-
+          crush_image: crush_image,
           crush_username: crush_username,
           crush_description: crush_description,
           crush_nature: crush_nature,
