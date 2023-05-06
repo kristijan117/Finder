@@ -31,21 +31,25 @@
                 <div v-if="chat.sympathy === match.crush_username && chat.currentUser === globalUsername">
                   <h4 style="margin-left:20px">{{chat.currentUser}}</h4>
                   <div><img src="@/assets/user_icon.png" style="width:50px;height:50px;border-radius:25px"></div>
+                  <div class="msg-info-time">12:46</div>
                   {{chat.message}}
                 </div>
                 <div v-if="chat.sympathy === match.match_crush_username && chat.currentUser === globalUsername">
                   <h4 style="margin-left:20px">{{chat.currentUser}}</h4>
                   <div><img src="@/assets/user_icon.png" style="width:50px;height:50px;border-radius:25px"></div>
+                  <div class="msg-info-time">12:46</div>
                   {{chat.message}}
                 </div>
                 <div v-if="chat.sympathy === globalUsername && chat.currentUser === match.crush_username">
                   <h4 style="margin-left:20px">{{chat.currentUser}}</h4>
                   <div><img src="@/assets/user_icon.png" style="width:50px;height:50px;border-radius:25px"></div>
+                  <div class="msg-info-time">12:46</div>
                   {{chat.message}}
                 </div>
                 <div v-if="chat.sympathy === globalUsername && chat.currentUser === match.match_crush_username">
                   <h4 style="margin-left:20px">{{chat.currentUser}}</h4>
                   <div><img src="@/assets/user_icon.png" style="width:50px;height:50px;border-radius:25px"></div>
+                  <div class="msg-info-time">12:46</div>
                   {{chat.message}}
                 </div>
               </div>
@@ -124,27 +128,30 @@ export default({
 
                 // Iteriranje kroz polje users kako bi se pronašli korisnici s obostranim simpatijama
                 for (let i = 0; i < users.length; i++) {
-                    console.log("evo users[i]",users[i]);
                     for (let j = i + 1; j < users.length; j++) {
-                      console.log("evo users[j]",users[j]);
+                      //Petlja stoji na prvom dokumentu i ali zato iterira drugi dokument j do kraja, kada j dođe do kraja i kreće na drugi dokument i zatim j ide ponovno do kraja
                     if (
-                        users[i].crush_username === users[j].username &&
-                        users[i].username === users[j].crush_username
-                    ) {
+                        users[i].crush_username === users[j].username && //users[i].crush_username === users[j].username -> Ako se korisniku iz dokumenta i (Filip) sviđa osoba iz dokumenta j (Ivana)
+                        users[i].username === users[j].crush_username //users[i].username === users[j].crush_username -> Ako se toj istoj osobi (Ivana) sviđa ta prva osoba (Filip)
+                        //kad su u dva različita dokumenta obostrane simpatije ulazi se u ovaj uvijet
+                        ) {
                         // Ako postoje obostrane simpatije, stvaranje novog objekta u this.matches
                         let matched_person;
                         
                         if(users[i].crush_username!==users[i].username){
+                          //Tražimo simpatiju osobe iz i dokumenta
                           console.log('users[i].username: ',users[i].username)
                           matched_person = users[i].username;
                         }
                         else if(users[j].match_crush_username!==users[i].username){
+                          //Tražimo simpatiju osobe iz j dokumenta
                           console.log('users[j].match_crush_username ',users[j].match_crush_username)
                           matched_person = users[j].match_crush_username;
                         }
                         
+                        //Dodaje se match_id, odnosno imena obostranih simpatija pridružuju se u jednu varijablu (Npr. Filip and Ivana)
                         let match_id = matched_person + " and " + users[j].username;
-                        
+                        //U memoriju formiramo objekt sa obostranim simpatijama
                         this.matches.push({
                             username: users[i].username,
                             crush_username: users[i].crush_username,

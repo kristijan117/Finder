@@ -37,13 +37,13 @@ export default {
 
   methods: {
     logout() {
-      store.authenticated = false
+			firebase.auth().signOut().then(() =>{
+				this.$router.go()
+			})
     }
   },
   mounted() {
-    
     firebase.auth().onAuthStateChanged((user) => {
-      const currentRoute = router.currentRoute;
       if (user) {
         console.log("Hello user", user.email)
         db.collection("user")
@@ -65,13 +65,12 @@ export default {
                   console.log("Error getting document:", error);
               });
               store.userEmail = user.email;
+              store.authenticated = true;
       } 
       else {
           console.log("No user");
           store.userEmail = null;
-      /*if(currentRoute.meta.needsUser){
-          router.push({name:'login'});
-      }*/
+          store.authenticated = false;
     }
   }
     )}

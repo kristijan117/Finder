@@ -8,12 +8,11 @@
     <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a>-->
     <section id="team" class="pb-5">
     <div class="container">
-        <h1>{{ store.userName }}</h1>
         <h5 class="section-title h1">FIND YOUR MATCH</h5>
         <div class="row">
             <!-- Team member -->
             <div v-for="user in users" :key="user.id" :info="user" class="col-xs-12 col-sm-6 col-md-4">
-                <div v-if="user.username!==store.userName" class="image-flip">
+                <div class="image-flip">
                     <div class="mainflip flip-0">
                         <div class="frontside">
                             <div class="card">
@@ -36,7 +35,7 @@
                                     <p>{{user.reading_books}}</p>
                                     <p>{{user.watching_movies}}</p>
                                     <p style="font-size:20px;color:#1d8e1d">Do you like <span v-if="user.gender=='male'">him?</span><span v-else>her?</span></p>
-                                    <button @click="match_person(user.username,user.about_you,user.nature,user.animals,user.reading_books,user.watching_movies,user.interests,user.image_url)" style="border:none"><img style="height:50px;width:50px" src="../assets/heart-icon.png"></button>
+                                    <button @click="match_person(user.username,user.image_url)" style="border:none"><img style="height:50px;width:50px" src="../assets/heart-icon.png"></button>
                                 </div>
                                     
                             </div>
@@ -46,7 +45,6 @@
             </div>
             
             <!-- ./Team member -->
-
         </div>
     </div>
     
@@ -77,21 +75,28 @@ export default {
         reading_books:'',
         watching_movies:'',
         about_you:'',
+        globalName: '',
         store
     }
   },
   methods:{
     fetchUser() {
-            db.collection("user")
+            db.collection("user") //Pristupamo kolekciji user
             .get()
             .then((query) => {
                 query.forEach((doc) => {
                     const data = doc.data();
+                    //Varijabli data pridružuju se dokumenti
                     console.log(data);
                     this.docs=data;
-                   
+                    //Iteriranje kroz kolekciju user (prolaz po svakom dokumentu koji se nalazi u kolekciji)
+                    if(data.email!==store.userEmail)
+                    {
+                    console.log("Ime:",data.email, "ime:", store.userEmail)
                     this.users.push({
+                    //Punjenje polja users sa korisnikovim atributima
                         id: doc.id,
+                        email: data.email,
                         username: data.username,
                         image_url: data.image_url,
                         gender: data.gender,
@@ -101,28 +106,28 @@ export default {
                         reading_books: data.reading_books,
                         watching_movies: data.watching_movies,
                         about_you: data.about_you
-      
                     })
-                    
+                }
                     
                 });
             });
     },
-    match_person(crush_username,crush_description,crush_nature,crush_animals,crush_reading_books,crush_watching_movies,crush_interests,crush_image){
+    match_person(crush_username,crush_image){
       try {
       db.collection("like_person")
         .doc()
         .set({
+        //Stvaranje kolekcije like_person ako ne postoji i postavljanje atributa o simpatiji
           username: store.userName,
           email: store.userEmail,
           crush_image: crush_image,
           crush_username: crush_username,
-          crush_description: crush_description,
+          /*crush_description: crush_description,
           crush_nature: crush_nature,
           crush_animals: crush_animals,
           crush_reading_books: crush_reading_books,
           crush_watching_movies: crush_watching_movies,
-          crush_interests: crush_interests
+          crush_interests: crush_interests*/
         });
       
       //this.$router.replace({ name: 'home'});
@@ -133,10 +138,10 @@ export default {
   }
     
   },
-  mounted(){
-        console.log("random message")
+    mounted(){
         this.fetchUser();
-        console.log(this.users)
+        console.log("Evo usera: ",this.users)
+        this.globalName = store.userName;
     }
 }
 
