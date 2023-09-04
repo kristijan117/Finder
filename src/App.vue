@@ -17,7 +17,8 @@
           <a @click="logout" class="btn btn-info my-2 my-sm-0 mr-2" href="#">Logout</a>
         </span>
         <router-link v-if="!authenticated" class="btn btn-outline my-2 my-sm-0 mr-2" to="/signup">Signup</router-link>
-        <router-link class="btn btn-outline my-2 my-sm-0 mr-2" to="/crushes">Mutual sympathies</router-link>
+        <router-link v-if="authenticated" class="btn btn-color my-2 my-sm-0 mr-2" to="/crushes">Mutual sympathies</router-link>
+      
       </div>
     </nav>
 
@@ -38,7 +39,7 @@ export default {
   methods: {
     logout() {
 			firebase.auth().signOut().then(() =>{
-				this.$router.go()
+				this.$router.replace({name: 'home'});
 			})
     }
   },
@@ -56,6 +57,7 @@ export default {
                   store.userName = data.username
                   store.userEmail = data.email
                   store.userImg = data.image_url
+                  store.userGender = data.gender
               } 
               else {
                   console.log("Document does not exist!");

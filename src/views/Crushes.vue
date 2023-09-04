@@ -29,44 +29,30 @@
 
               <div v-for="chat in chat" :key="chat.id" :info="chat">
                 <div v-if="chat.sympathy === match.crush_username && chat.currentUser === globalUsername">
-                  <h4 style="margin-left:20px">{{chat.currentUser}}</h4>
-                  <div><img src="@/assets/user_icon.png" style="width:50px;height:50px;border-radius:25px"></div>
-                  <div class="msg-info-time">12:46</div>
-                  {{chat.message}}
+                  <h4 style="margin-left:20px;text-align: initial;">{{chat.currentUser}}</h4>
+                  <div style="text-align:initial"><img src="@/assets/user_icon.png" style="width:50px;height:50px;border-radius:25px"></div>
+                  <p style="text-align: initial;">{{chat.message}}</p>
+                  <div class="msg-info-time"> <p style="text-align: initial;">{{formatDate(chat.date_time)}}</p></div>
                 </div>
                 <div v-if="chat.sympathy === match.match_crush_username && chat.currentUser === globalUsername">
-                  <h4 style="margin-left:20px">{{chat.currentUser}}</h4>
-                  <div><img src="@/assets/user_icon.png" style="width:50px;height:50px;border-radius:25px"></div>
-                  <div class="msg-info-time">12:46</div>
-                  {{chat.message}}
+                  <h4 style="margin-left:20px;text-align: initial;">{{chat.currentUser}}</h4>
+                  <div style="text-align:initial"><img src="@/assets/user_icon.png" style="width:50px;height:50px;border-radius:25px"></div>
+                  <p style="text-align: initial;">{{chat.message}}</p>
+                  <div class="msg-info-time"> <p style="text-align: initial;">{{formatDate(chat.date_time)}}</p></div>
                 </div>
                 <div v-if="chat.sympathy === globalUsername && chat.currentUser === match.crush_username">
-                  <h4 style="margin-left:20px">{{chat.currentUser}}</h4>
-                  <div><img src="@/assets/user_icon.png" style="width:50px;height:50px;border-radius:25px"></div>
-                  <div class="msg-info-time">12:46</div>
-                  {{chat.message}}
+                  <h4 style="margin-left:20px;text-align: initial;">{{chat.currentUser}}</h4>
+                  <div style="text-align:initial"><img src="@/assets/user_icon.png" style="width:50px;height:50px;border-radius:25px"></div>
+                  <p style="text-align: initial;">{{chat.message}}</p>
+                  <div class="msg-info-time"> <p style="text-align: initial;">{{formatDate(chat.date_time)}}</p></div>
                 </div>
                 <div v-if="chat.sympathy === globalUsername && chat.currentUser === match.match_crush_username">
-                  <h4 style="margin-left:20px">{{chat.currentUser}}</h4>
-                  <div><img src="@/assets/user_icon.png" style="width:50px;height:50px;border-radius:25px"></div>
-                  <div class="msg-info-time">12:46</div>
-                  {{chat.message}}
+                  <h4 style="margin-left:20px;text-align: initial;">{{chat.currentUser}}</h4>
+                  <div style="text-align:initial"><img src="@/assets/user_icon.png" style="width:50px;height:50px;border-radius:25px"></div>
+                  <p style="text-align: initial;">{{chat.message}}</p>
+                  <div class="msg-info-time"> <p style="text-align: initial;">{{formatDate(chat.date_time)}}</p></div>
                 </div>
               </div>
-            </div>
-            </div>
-
-            <div class="msg right-msg">
-
-            <div class="msg-bubble">
-                <div class="msg-info">
-                <div class="msg-info-name">Sajad</div>
-                <div class="msg-info-time">12:46</div>
-                </div>
-
-                <div class="msg-text">
-                You can change your name in JS section!
-                </div>
             </div>
             </div>
         </main>
@@ -83,6 +69,8 @@
 <script>
 import { firebase, db } from '@/firebase'
 import store from '@/store.js'
+import moment from 'moment'
+//import dayjs from 'dayjs'
 export default({
     data: function(){
         return{
@@ -101,20 +89,11 @@ export default({
             globalImage:'',
             selectedMatch:null,
             message:'',
-            chat:[]
+            chat:[],
+            date_time:null
         }
     },
     
-    computed:{
-    filteredMatches() {
-      // Filtriraj popis `matches` kako bi ostali samo razgovori između dva korisnika
-      return this.matches.filter(match => {
-        return (
-          (match.crush_username === this.globalUsername && match.match_crush_username === this.otherUsername) ||
-          (match.match_crush_username === this.globalUsername && match.crush_username === this.otherUsername)
-        )
-      })}
-    },
     methods:{
         fetchMutualSympathy() {
             db.collection("like_person")
@@ -152,7 +131,9 @@ export default({
                         //Dodaje se match_id, odnosno imena obostranih simpatija pridružuju se u jednu varijablu (Npr. Filip and Ivana)
                         let match_id = matched_person + " and " + users[j].username;
                         //U memoriju formiramo objekt sa obostranim simpatijama
+                        
                         this.matches.push({
+                          
                             username: users[i].username,
                             crush_username: users[i].crush_username,
                             crush_image: users[i].crush_image,
@@ -160,6 +141,7 @@ export default({
                             match_crush_username: users[j].crush_username,
                             match_id: match_id
                         });
+                        
                         console.log("Evo obostranih simpatija: ",this.matches);
                     }
                     }
@@ -168,7 +150,6 @@ export default({
         },
         
         sendMessage(message,crush_username,match_crush_username,match_id){
-        var batch = db.batch()
         let realCrush;
         if(crush_username!==this.globalUsername){
             realCrush=crush_username;
@@ -183,6 +164,7 @@ export default({
                 user:this.globalUsername,
                 toUser:realCrush,
                 message:message,
+                date_time:this.date_time,
                 match_id:match_id
             });
         } 
@@ -191,32 +173,45 @@ export default({
             }
         },
         
-    fetchMessage() {
-            db.collection("chat")
+        fetchMessage() {
+          db.collection("chat")
             .get()
             .then((query) => {
-                query.forEach((doc) => {
-                    const data = doc.data();
-                    console.log(data);
-                    this.docs=data;
-                   
-                    this.chat.push({
-                        message:data.message,
-                        sympathy:data.toUser,
-                        currentUser:data.user
-                    })
-                    
-                    
+              query.forEach((doc) => {
+                const data = doc.data();
+                console.log(data);
+                this.docs = data;
+                let changedDate = data.date_time.replace(/(\d{2}).(\d{2}).(\d{4})/, '$2/$1/$3');
+                let finalDate = new Date(changedDate);
+                // Uklanjanje vremenske zone iz objekta Date
+                this.chat.push({
+                  message: data.message,
+                  sympathy: data.toUser,
+                  currentUser: data.user,
+                  date_time: finalDate
                 });
+              });
+
+              this.chat.sort((a, b) => a.date_time - b.date_time);
+
             });
-            
+},
+    dateTime(value) {
+      this.date_time = moment(value).format('DD.MM.YYYY HH:mm:ss')
+      console.log(this.date_time)
+      return moment(value).format('DD.MM.YYYY HH:mm:ss')
     },
+    formatDate(date) {
+      return new Date(date).toLocaleString();
+    }
     },
     mounted(){
         this.fetchMutualSympathy();
         this.globalUsername=store.userName;
         this.globalImage=store.userImg;
         this.fetchMessage();
+        let a = this.dateTime();
+        console.log(a)
         console.log("Globalni username: ",this.globalUsername)
     }
 

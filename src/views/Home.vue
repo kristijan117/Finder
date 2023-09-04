@@ -9,6 +9,8 @@
     <section id="team" class="pb-5">
     <div class="container">
         <h5 class="section-title h1">FIND YOUR MATCH</h5>
+        <h4 v-if="store.userGender=='female' && store.authenticated">You like: male</h4>
+        <h4 v-if="store.userGender=='male' && store.authenticated">You like: female</h4>
         <div class="row">
             <!-- Team member -->
             <div v-for="user in users" :key="user.id" :info="user" class="col-xs-12 col-sm-6 col-md-4">
@@ -35,7 +37,7 @@
                                     <p>{{user.reading_books}}</p>
                                     <p>{{user.watching_movies}}</p>
                                     <p style="font-size:20px;color:#1d8e1d">Do you like <span v-if="user.gender=='male'">him?</span><span v-else>her?</span></p>
-                                    <button @click="match_person(user.username,user.image_url)" style="border:none"><img style="height:50px;width:50px" src="../assets/heart-icon.png"></button>
+                                    <button @click="match_person(user.username,user.image_url)" style="border:none;background-color:transparent"><img style="height:50px;width:50px" src="../assets/heart-icon.png"></button>
                                 </div>
                                     
                             </div>
@@ -90,7 +92,7 @@ export default {
                     console.log(data);
                     this.docs=data;
                     //Iteriranje kroz kolekciju user (prolaz po svakom dokumentu koji se nalazi u kolekciji)
-                    if(data.email!==store.userEmail)
+                    if(data.email!==store.userEmail && store.userGender !== data.gender)
                     {
                     console.log("Ime:",data.email, "ime:", store.userEmail)
                     this.users.push({
@@ -160,7 +162,7 @@ export default {
  }  
  @import url('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
 #team {
-    background: #eee !important;
+    background: white !important;
 }
 
 .btn-primary:hover,
